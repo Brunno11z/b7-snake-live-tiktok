@@ -1,0 +1,2322 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>B7 GAMES • Cobrinha 2.5D Interativa (TikTok Live Edition)</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.2.4"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    body {
+      margin: 0;
+      padding: 16px 8px;
+      background: radial-gradient(circle at top center, #0f1c3a 0%, #060913 100%);
+      font-family: 'Outfit', sans-serif;
+      min-height: 100vh;
+      color: #ffffff;
+      overflow-y: auto;
+    }
+
+    #main-wrapper {
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      align-items: flex-start;
+      gap: 28px;
+      max-width: 1440px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    @media (max-width: 1100px) {
+      #main-wrapper {
+        flex-direction: column;
+        align-items: center;
+      }
+    }
+
+    #phone-frame {
+      position: relative;
+      height: 96vh;
+      max-height: 960px;
+      aspect-ratio: 9 / 16;
+      max-width: 100vw;
+      background: #080a15;
+      border-radius: 28px;
+      box-shadow: 0 25px 65px rgba(0, 0, 0, 0.9), 0 0 0 2px rgba(56, 189, 248, 0.25);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      touch-action: none;
+    }
+
+    /* Animação do alerta estilo chat de live do TikTok */
+    @keyframes slideInChat {
+      0% { opacity: 0; transform: translateX(-24px) scale(0.95); }
+      100% { opacity: 1; transform: translateX(0) scale(1); }
+    }
+    .chat-toast {
+      animation: slideInChat 0.28s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+
+    /* Barra de rolagem sutil */
+    ::-webkit-scrollbar {
+      width: 5px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.04);
+      border-radius: 99px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(37, 99, 235, 0.6);
+      border-radius: 99px;
+    }
+
+    /* ========================================================
+       PAINEL B7 GAMES - TEMA AZUL CYBERSTREAM
+       ======================================================== */
+    .b7-panel {
+      background: #0b1329;
+      border: 1px solid #1e3a8a;
+      border-radius: 24px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(56, 189, 248, 0.2);
+      padding: 22px;
+      width: 100%;
+      max-width: 580px;
+      color: #e2e8f0;
+      backdrop-filter: blur(14px);
+    }
+
+    .b7-card {
+      background: #0f1c38;
+      border: 1px solid #1e3a8a;
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 14px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+    }
+
+    .b7-btn-primary {
+      background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 50%, #38bdf8 100%);
+      color: white;
+      font-weight: 800;
+      border: none;
+      border-radius: 12px;
+      padding: 10px 18px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .b7-btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(56, 189, 248, 0.5);
+      filter: brightness(1.1);
+    }
+
+    .b7-btn-secondary {
+      background: rgba(15, 28, 56, 0.9);
+      color: #94a3b8;
+      border: 1px solid #1e3a8a;
+      border-radius: 12px;
+      padding: 9px 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .b7-btn-secondary:hover {
+      background: rgba(30, 58, 138, 0.6);
+      color: #f1f5f9;
+      border-color: #38bdf8;
+    }
+
+    .b7-btn-ia {
+      background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+      color: #022c22;
+      font-weight: 900;
+      border: 1px solid rgba(52, 211, 153, 0.5);
+      box-shadow: 0 0 18px rgba(16, 185, 129, 0.4);
+      cursor: pointer;
+    }
+    .b7-btn-ia.off {
+      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+      color: #94a3b8;
+      border-color: #334155;
+      box-shadow: none;
+    }
+
+    .b7-input {
+      background: #080d1e;
+      border: 1px solid #1e3a8a;
+      border-radius: 10px;
+      padding: 9px 12px;
+      color: #ffffff;
+      font-family: inherit;
+      font-size: 13px;
+      outline: none;
+      width: 100%;
+      transition: border-color 0.2s;
+    }
+    .b7-input:focus {
+      border-color: #38bdf8;
+      box-shadow: 0 0 8px rgba(56, 189, 248, 0.35);
+    }
+
+    .b7-badge {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .b7-badge-blue {
+      background: rgba(37, 99, 235, 0.2);
+      color: #60a5fa;
+      border: 1px solid rgba(37, 99, 235, 0.4);
+    }
+    .b7-badge-online {
+      background: rgba(16, 185, 129, 0.2);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.4);
+    }
+    .b7-badge-offline {
+      background: rgba(239, 68, 68, 0.15);
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    /* MODO OBS STUDIO (100% LIMPO PARA TRANSMISSÃO) */
+    body.obs-mode {
+      background: transparent !important;
+      padding: 0 !important;
+      margin: 0 !important;
+      overflow: hidden !important;
+    }
+    body.obs-mode #main-wrapper {
+      max-width: 100vw;
+      width: 100vw;
+      height: 100vh;
+      margin: 0;
+      padding: 0;
+      justify-content: center;
+      align-items: center;
+    }
+    body.obs-mode .b7-panel {
+      display: none !important;
+    }
+    body.obs-mode #phone-frame {
+      box-shadow: none !important;
+      border-radius: 0 !important;
+      height: 100vh !important;
+      max-height: 100vh !important;
+      width: auto !important;
+    }
+  
+    /* Garantia de Estilos Nativos B7 Cyber Blue */
+    .b7-panel * {
+      box-sizing: border-box;
+    }
+    .b7-panel button {
+      font-family: inherit;
+    }
+    #b7-quick-gifts-grid button {
+      background: #081022 !important;
+      border: 1px solid #1e3a8a !important;
+      color: #ffffff !important;
+      border-radius: 12px;
+      padding: 8px 4px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s ease;
+    }
+    #b7-quick-gifts-grid button:hover {
+      background: #0f1d3d !important;
+      border-color: #38bdf8 !important;
+      transform: translateY(-2px);
+    }
+    #b7-quick-gifts-grid button:active {
+      transform: translateY(1px);
+    }
+    .b7-test-btn {
+      padding: 8px 12px;
+      border-radius: 10px;
+      font-weight: 800;
+      font-size: 12px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.15s;
+    }
+    #b7-test-apple-sound {
+      background: rgba(16, 185, 129, 0.15) !important;
+      border: 1px solid rgba(16, 185, 129, 0.4) !important;
+      color: #34d399 !important;
+    }
+    #b7-test-apple-sound:hover {
+      background: rgba(16, 185, 129, 0.28) !important;
+      border-color: #34d399 !important;
+    }
+    #b7-test-bomb-sound {
+      background: rgba(239, 68, 68, 0.15) !important;
+      border: 1px solid rgba(239, 68, 68, 0.4) !important;
+      color: #f87171 !important;
+    }
+    #b7-test-bomb-sound:hover {
+      background: rgba(239, 68, 68, 0.28) !important;
+      border-color: #f87171 !important;
+    }
+    #b7-main-ia-btn {
+      width: 100%;
+      border-radius: 14px;
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    #b7-main-ia-btn.b7-btn-ia {
+      background: linear-gradient(135deg, #059669 0%, #10b981 100%) !important;
+      color: #022c22 !important;
+      border: 1px solid rgba(52, 211, 153, 0.6) !important;
+      box-shadow: 0 0 20px rgba(16, 185, 129, 0.4) !important;
+    }
+    #b7-main-ia-btn.b7-btn-ia.off {
+      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%) !important;
+      color: #94a3b8 !important;
+      border: 1px solid #334155 !important;
+      box-shadow: none !important;
+    }
+
+  </style>
+</head>
+<body>
+
+  <div id="main-wrapper">
+    <!-- Coluna 1: Jogo Original 2.5D no Phone Frame (Para Streamer e OBS) -->
+    <div id="game-container" class="shrink-0 flex justify-center">
+      <div id="phone-frame">
+        <!-- Canvas Principal 2.5D Isométrico Limpo -->
+        <canvas id="gameCanvas"></canvas>
+
+        <!-- Feed de Alertas Estilo Chat Live TikTok (Canto inferior limpo para a Live) -->
+        <div id="live-chat-feed" class="pointer-events-none absolute left-3 right-3 bottom-4 z-20 flex flex-col gap-1.5 items-start"></div>
+      </div>
+    </div>
+
+    <!-- Coluna 2: Painel B7 GAMES Cor Azul (Totalmente Integrado no Localhost) -->
+    <aside id="b7-admin-panel" class="b7-panel flex flex-col gap-4">
+      
+      <!-- Cabeçalho Oficial B7 GAMES -->
+      <div class="flex items-center justify-between pb-3 border-b border-blue-900/60">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-sky-400 flex items-center justify-center text-xl shadow-lg shadow-blue-500/30 font-black">
+            B7
+          </div>
+          <div>
+            <h1 class="text-lg font-black tracking-wide text-sky-300 m-0">B7 GAMES • LIVE</h1>
+            <p class="text-[11px] text-blue-300/70 font-semibold m-0">Painel de Controle TikTok Live & EulerStream</p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <span id="b7-status-badge" class="b7-badge b7-badge-offline">DESCONECTADO</span>
+          <span id="b7-ia-badge-top" class="b7-badge b7-badge-online">IA ATIVA</span>
+        </div>
+      </div>
+
+      <!-- DESTAQUE 1: CONTROLE DO MODO IA (PILOTO AUTOMÁTICO) -->
+      <div class="b7-card !p-3">
+        <button id="b7-main-ia-btn" type="button" class="b7-btn-ia w-full py-3 px-4 rounded-xl flex items-center justify-between text-sm font-black transition">
+          <div class="flex items-center gap-2.5">
+            <span class="text-2xl">🤖</span>
+            <div class="text-left">
+              <div class="text-[10px] uppercase tracking-wider text-emerald-950 font-extrabold">Piloto Automático</div>
+              <div class="text-sm font-black text-emerald-950">MODO IA: ATIVO</div>
+            </div>
+          </div>
+          <span class="px-2.5 py-1 rounded-full bg-emerald-900/30 text-[11px] font-black text-emerald-950 border border-emerald-900/40">LIGADO</span>
+        </button>
+      </div>
+
+      <!-- DESTAQUE 2: SONS DA MAÇÃ E DA BOMBA (SÍNTESE DE ALTA FIDELIDADE) -->
+      <div class="b7-card">
+        <div class="flex items-center justify-between mb-2">
+          <div class="text-xs font-black uppercase tracking-wider text-sky-400 flex items-center gap-1.5">
+            <span>🔊</span>
+            <span>Efeitos Sonoros (Maçã & Bomba)</span>
+          </div>
+          <span class="text-[11px] text-slate-400 font-semibold">Web Audio 0ms</span>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2 mb-3">
+          <button id="b7-test-apple-sound" type="button" class="py-2 px-3 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-xs font-black text-emerald-300 flex items-center justify-center gap-1.5 transition active:scale-95">
+            <span>🍎</span>
+            <span>Testar Som Maçã</span>
+          </button>
+          <button id="b7-test-bomb-sound" type="button" class="py-2 px-3 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/30 text-xs font-black text-rose-300 flex items-center justify-center gap-1.5 transition active:scale-95">
+            <span>💣</span>
+            <span>Testar Som Bomba</span>
+          </button>
+        </div>
+
+        <div class="flex items-center justify-between gap-3 pt-2 border-t border-blue-900/40">
+          <label class="flex items-center gap-1.5 text-xs text-slate-300 cursor-pointer">
+            <input id="b7-chk-apple" type="checkbox" checked class="rounded accent-emerald-500">
+            <span>Crunch Maçã</span>
+          </label>
+          <label class="flex items-center gap-1.5 text-xs text-slate-300 cursor-pointer">
+            <input id="b7-chk-bomb" type="checkbox" checked class="rounded accent-rose-500">
+            <span>Boom Bomba</span>
+          </label>
+          <div class="flex items-center gap-2">
+            <span class="text-[11px] text-slate-400">Vol:</span>
+            <input id="b7-volume-slider" type="range" min="0" max="100" value="85" class="w-20 accent-sky-400 cursor-pointer" />
+          </div>
+        </div>
+      </div>
+
+      <!-- DESTAQUE 3: BOTÕES RÁPIDOS DE PRESENTES (DISPARO NO JOGO) -->
+      <div class="b7-card">
+        <div class="flex items-center justify-between mb-2.5">
+          <div>
+            <div class="text-xs font-black uppercase tracking-wider text-sky-300 flex items-center gap-1.5">
+              <span>🎁</span>
+              <span>Toque no Presente (Disparo Imediato)</span>
+            </div>
+            <p class="text-[11px] text-slate-400 m-0">Dispare qualquer presente com 1 clique para testar na cobrinha:</p>
+          </div>
+          <button id="b7-btn-edit-gifts" type="button" class="py-1.5 px-3 rounded-xl bg-blue-900/60 hover:bg-blue-800/80 border border-blue-500/50 text-xs font-black text-sky-200 hover:text-white flex items-center gap-1.5 transition shadow-sm active:scale-95">
+            <span>⚙️</span>
+            <span>Editor de Fotos / Qtd</span>
+          </button>
+        </div>
+        <div id="b7-quick-gifts-grid" class="grid grid-cols-5 gap-2"></div>
+      </div>
+
+      <!-- DESTAQUE 4: CONEXÃO TIKTOK LIVE COM EULERSTREAM API -->
+      <div class="b7-card">
+        <div class="text-xs font-black uppercase tracking-wider text-sky-400 flex items-center gap-1.5 mb-2.5">
+          <span>📡</span>
+          <span>Conexão TikTok Live (API EulerStream)</span>
+        </div>
+
+        <div class="flex flex-col gap-2.5">
+          <div>
+            <label class="text-[11px] font-bold text-slate-400 block mb-1">Seu @ no TikTok Live (ex: @seunome):</label>
+            <input id="b7-tiktok-user" type="text" placeholder="@seuperfil" class="b7-input" />
+          </div>
+
+          <div>
+            <label class="text-[11px] font-bold text-slate-400 block mb-1">Chave EulerStream API (Opcional se usar local):</label>
+            <input id="b7-euler-key" type="password" placeholder="Chave da API EulerStream" class="b7-input font-mono" />
+          </div>
+
+          <div class="flex gap-2 mt-1">
+            <button id="b7-btn-connect-live" type="button" class="b7-btn-primary flex-1">
+              <span>⚡ Conectar Live</span>
+            </button>
+            <button id="b7-btn-disconnect-live" type="button" class="b7-btn-secondary">
+              <span>Desconectar</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- DESTAQUE 5: INTEGRAÇÃO OBS STUDIO -->
+      <div class="b7-card flex items-center justify-between gap-2">
+        <div>
+          <div class="text-xs font-bold text-white flex items-center gap-1">
+            <span>🎬</span>
+            <span>Link Limpo para OBS Studio</span>
+          </div>
+          <p class="text-[11px] text-slate-400 m-0">Insira no OBS como Navegador (Browser Source 9:16)</p>
+        </div>
+        <button id="b7-copy-obs-btn" type="button" class="b7-btn-secondary shrink-0 text-xs font-extrabold text-sky-300">
+          <span>📋 Copiar Link OBS</span>
+        </button>
+      </div>
+
+      <!-- FEED AO VIVO DO TIKTOK -->
+      <div class="b7-card">
+        <div class="text-xs font-black uppercase tracking-wider text-sky-400 flex items-center gap-1.5 mb-2">
+          <span>💬</span>
+          <span>Feed de Eventos da Live em Tempo Real</span>
+        </div>
+        <div id="b7-live-event-feed" class="flex flex-col gap-1 max-h-36 overflow-y-auto pr-1">
+          <div class="text-[11px] text-slate-400 italic">Aguardando eventos da live ou testes manuais...</div>
+        </div>
+      </div>
+
+    </aside>
+
+    <!-- Modal Global: Editor de Fotos, Quantidades e Tipos de Presente (B7 Cyber Blue) -->
+    <div id="config-modal" class="hidden fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4">
+      <div class="bg-[#0b1329] border border-blue-800 rounded-2xl w-full max-w-lg p-5 flex flex-col max-h-[90vh] shadow-2xl shadow-blue-900/50">
+        <div class="flex items-center justify-between pb-3 border-b border-blue-900/60">
+          <div>
+            <h2 class="text-base font-extrabold text-white flex items-center gap-2">
+              <span>⚙️</span>
+              <span>Editor de Fotos e Presentes da Live</span>
+            </h2>
+            <p class="text-[11px] text-blue-300/80 m-0">Adicione fotos pequenas, configure quantidades e defina se gera 🍎 Maçã ou 💣 Bomba</p>
+          </div>
+          <button id="close-config-btn" type="button" class="w-8 h-8 rounded-full bg-blue-950 hover:bg-blue-900 border border-blue-800 text-white font-bold flex items-center justify-center transition">✕</button>
+        </div>
+
+        <div id="config-list" class="flex-1 overflow-y-auto py-3 flex flex-col gap-2.5 pr-1 my-2"></div>
+
+        <div class="pt-3 border-t border-blue-900/60 flex gap-2">
+          <button id="add-gift-btn" type="button" class="flex-1 py-2.5 rounded-xl bg-blue-950/80 hover:bg-blue-900 border border-blue-700 text-xs font-extrabold text-sky-300 transition">
+            + Novo Presente
+          </button>
+          <button id="save-config-btn" type="button" class="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-sky-500 hover:brightness-110 text-xs font-extrabold text-white transition shadow-lg shadow-blue-500/30">
+            Salvar & Aplicar
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+
+    // --- CONFIGURAÇÕES DE RESOLUÇÃO LÓGICA (9:16 VERTICAL) ---
+    const WIDTH = 540;
+    const HEIGHT = 960;
+
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = WIDTH;
+    canvas.height = HEIGHT;
+
+    // --- CONFIGURAÇÃO DA ARENA ISOMÉTRICA 2.5D (16x16) ---
+    const GRID_SIZE = 16;
+    const TILE_W = 30;
+    const TILE_H = 16;
+    const ORIGIN_X = WIDTH / 2;
+    const ORIGIN_Y = 250; // Posiciona o tabuleiro no centro-superior deixando espaço para os presentes
+
+    const COLORS = {
+      bgTop: '#121029',
+      bgBottom: '#070712',
+      tileEven: '#1d1b3b',
+      tileOdd: '#242147',
+      gridLine: 'rgba(110, 95, 210, 0.24)',
+      boardLeft: '#0f0d24',
+      boardRight: '#151230',
+      neonEdge: '#00f5d4',
+      snakeLight: '#80ffea',
+      snakeMain: '#00e5b8',
+      snakeDark: '#008c72',
+      gold: '#ffd166'
+    };
+
+    // --- PRESENTES DO TIKTOK CONFIGURÁVEIS ---
+    const DEFAULT_GIFTS = [
+      { id: 'g1', name: 'Rosa', emoji: '🌹', img: null, qty: 1, type: 'bomb' },
+      { id: 'g2', name: 'Buquê', emoji: '💐', img: null, qty: 10, type: 'apple' },
+      { id: 'g3', name: 'Caixa', emoji: '🎁', img: null, qty: 20, type: 'apple' },
+      { id: 'g4', name: 'Donut', emoji: '🍩', img: null, qty: 30, type: 'bomb' },
+      { id: 'g5', name: 'Luvas', emoji: '🥊', img: null, qty: 300, type: 'apple' }
+    ];
+
+    let gifts = loadGifts();
+
+    function loadGifts() {
+      try {
+        const saved = localStorage.getItem('tiktok_snake_gifts_v1');
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        }
+      } catch (e) {}
+      return JSON.parse(JSON.stringify(DEFAULT_GIFTS));
+    }
+
+    function saveGifts() {
+      try {
+        localStorage.setItem('tiktok_snake_gifts_v1', JSON.stringify(gifts));
+      } catch (e) {
+        // Caso o armazenamento esteja cheio por muitas imagens
+      }
+    }
+
+    // --- ESTADO GLOBAL DO JOGO ---
+    let state = {
+      snake: [],
+      prevSnake: [],
+      dir: { x: 1, y: 0 },
+      nextDir: { x: 1, y: 0 },
+      foods: [],
+      bombs: [],
+      score: 0,
+      bestScore: parseInt(localStorage.getItem('snake25d_best') || '0', 10),
+      moveInterval: 108,
+      moveAccumulator: 0,
+      lastTime: 0,
+      particles: [],
+      floatingTexts: [],
+      gameOver: false,
+      gameOverTimer: 0,
+      started: true,
+      autoPlay: true,
+      shake: 0,
+      tongueTimer: 0
+    };
+
+    // --- PROJEÇÃO ISOMÉTRICA 2.5D ---
+    function gridToIso(gx, gy, z = 0) {
+      return {
+        x: ORIGIN_X + (gx - gy) * (TILE_W / 2),
+        y: ORIGIN_Y + (gx + gy) * (TILE_H / 2) - z
+      };
+    }
+
+    function lerp(a, b, t) {
+      return a + (b - a) * t;
+    }
+
+    function isInside(x, y) {
+      return x >= 0 && x < GRID_SIZE && y >= 0 && y < GRID_SIZE;
+    }
+
+    // --- SPAWN DE MAÇÃS E BOMBAS ---
+    function getFreeCells() {
+      const occupied = new Set();
+      for (const s of state.snake) occupied.add(`${s.x},${s.y}`);
+      for (const f of state.foods) occupied.add(`${f.x},${f.y}`);
+      for (const b of state.bombs) occupied.add(`${b.x},${b.y}`);
+
+      const free = [];
+      for (let x = 0; x < GRID_SIZE; x++) {
+        for (let y = 0; y < GRID_SIZE; y++) {
+          if (!occupied.has(`${x},${y}`)) {
+            free.push({ x, y });
+          }
+        }
+      }
+      return free;
+    }
+
+    function spawnApples(count) {
+      const free = getFreeCells();
+      const amount = Math.min(count, free.length);
+      for (let i = 0; i < amount; i++) {
+        const idx = Math.floor(Math.random() * free.length);
+        const cell = free.splice(idx, 1)[0];
+        state.foods.push({
+          x: cell.x,
+          y: cell.y,
+          phase: Math.random() * Math.PI * 2,
+          spawnScale: 0.1
+        });
+        const p = gridToIso(cell.x + 0.5, cell.y + 0.5, 14);
+        emitParticles(p.x, p.y, ['#ff4d6d', '#80ff72', '#ffd166'], 6);
+      }
+    }
+
+    function spawnBombs(count) {
+      const free = getFreeCells();
+      const head = state.snake[0];
+      // Evita gerar bomba exatamente na casa imediatamente à frente da cabeça no mesmo frame
+      const safeFree = free.filter(
+        c => !(c.x === head.x + state.dir.x && c.y === head.y + state.dir.y)
+      );
+      const pool = safeFree.length > 0 ? safeFree : free;
+      const amount = Math.min(count, pool.length);
+
+      for (let i = 0; i < amount; i++) {
+        const idx = Math.floor(Math.random() * pool.length);
+        const cell = pool.splice(idx, 1)[0];
+        state.bombs.push({
+          x: cell.x,
+          y: cell.y,
+          timer: 5500 + Math.random() * 1500, // Explode após ~5.5s - 7s
+          phase: Math.random() * Math.PI * 2,
+          spawnScale: 0.1
+        });
+        const p = gridToIso(cell.x + 0.5, cell.y + 0.5, 14);
+        emitParticles(p.x, p.y, ['#ff9e00', '#ff4d6d', '#94a3b8'], 8);
+      }
+    }
+
+    // --- PARTÍCULAS ---
+    function emitParticles(x, y, palette, count = 16) {
+      for (let i = 0; i < count; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const speed = 1.2 + Math.random() * 4.2;
+        state.particles.push({
+          x,
+          y,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed - 2.4,
+          life: 20 + Math.floor(Math.random() * 16),
+          maxLife: 36,
+          size: 2.5 + Math.random() * 4,
+          color: palette[Math.floor(Math.random() * palette.length)]
+        });
+      }
+    }
+
+    function spawnFloatingText(x, y, text, color = '#ff4d6d') {
+      state.floatingTexts.push({
+        x,
+        y,
+        vy: -1.4,
+        text,
+        color,
+        life: 48,
+        maxLife: 48
+      });
+    }
+
+    
+    // ========================================================
+    // B7 GAMES AUDIO ENGINE - SÍNTESE PROCEDURAL DE ALTA FIDELIDADE
+    // Sons nativos sintetizados via Web Audio API (Zero arquivos externos, sem delay)
+    // ========================================================
+    const B7AudioEngine = {
+      ctx: null,
+      volume: 0.85,
+      soundAppleEnabled: true,
+      soundBombEnabled: true,
+
+      init() {
+        if (!this.ctx) {
+          const AudioCtx = window.AudioContext || window.webkitAudioContext;
+          if (AudioCtx) this.ctx = new AudioCtx();
+        }
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      },
+
+      setVolume(val) {
+        this.volume = Math.max(0, Math.min(1, parseFloat(val) || 0.85));
+      },
+
+      // SOM DA MAÇÃ: Mordida crocante e suculenta (Crunch orgânico)
+      playAppleCrunch() {
+        if (!this.soundAppleEnabled) return;
+        this.init();
+        if (!this.ctx) return;
+        try {
+          const now = this.ctx.currentTime;
+          const master = this.ctx.createGain();
+          master.gain.value = this.volume;
+          master.connect(this.ctx.destination);
+
+          // Camada 1: Ruído de mastigação rápida da casca crocante (Crack/Crunch)
+          const bufferSize = Math.floor(this.ctx.sampleRate * 0.11);
+          const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+          const data = buffer.getChannelData(0);
+          for (let i = 0; i < bufferSize; i++) {
+            data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (this.ctx.sampleRate * 0.024));
+          }
+          const noise = this.ctx.createBufferSource();
+          noise.buffer = buffer;
+
+          const filter = this.ctx.createBiquadFilter();
+          filter.type = 'bandpass';
+          filter.frequency.setValueAtTime(2700, now);
+          filter.frequency.exponentialRampToValueAtTime(1300, now + 0.08);
+          filter.Q.value = 3.2;
+
+          const noiseGain = this.ctx.createGain();
+          noiseGain.gain.setValueAtTime(0.95, now);
+          noiseGain.gain.exponentialRampToValueAtTime(0.01, now + 0.09);
+
+          noise.connect(filter);
+          filter.connect(noiseGain);
+          noiseGain.connect(master);
+          noise.start(now);
+
+          // Camada 2: Ressonância orgânica da polpa (Corpo tonal suave)
+          const osc = this.ctx.createOscillator();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(540, now);
+          osc.frequency.exponentialRampToValueAtTime(150, now + 0.075);
+
+          const oscGain = this.ctx.createGain();
+          oscGain.gain.setValueAtTime(0.7, now);
+          oscGain.gain.exponentialRampToValueAtTime(0.01, now + 0.075);
+
+          osc.connect(oscGain);
+          oscGain.connect(master);
+          osc.start(now);
+          osc.stop(now + 0.08);
+
+          // Camada 3: Micro-transiente secundário (Mastigada do pedaço)
+          const chewBuf = this.ctx.createBuffer(1, Math.floor(this.ctx.sampleRate * 0.06), this.ctx.sampleRate);
+          const chewData = chewBuf.getChannelData(0);
+          for (let i = 0; i < chewData.length; i++) {
+            chewData[i] = (Math.random() * 2 - 1) * Math.exp(-i / (this.ctx.sampleRate * 0.016));
+          }
+          const chewNoise = this.ctx.createBufferSource();
+          chewNoise.buffer = chewBuf;
+          const chewFilter = this.ctx.createBiquadFilter();
+          chewFilter.type = 'highpass';
+          chewFilter.frequency.setValueAtTime(2100, now + 0.04);
+          const chewGain = this.ctx.createGain();
+          chewGain.gain.setValueAtTime(0.5, now + 0.04);
+          chewGain.gain.exponentialRampToValueAtTime(0.01, now + 0.095);
+
+          chewNoise.connect(chewFilter);
+          chewFilter.connect(chewGain);
+          chewGain.connect(master);
+          chewNoise.start(now + 0.04);
+        } catch (e) {
+          console.warn('Audio error:', e);
+        }
+      },
+
+      // SOM DA BOMBA: Explosão profunda (Sub-bass boom + estilhaços de ruído + rumble)
+      playBombExplosion() {
+        if (!this.soundBombEnabled) return;
+        this.init();
+        if (!this.ctx) return;
+        try {
+          const now = this.ctx.currentTime;
+          const master = this.ctx.createGain();
+          master.gain.value = this.volume * 1.15;
+          master.connect(this.ctx.destination);
+
+          // Camada 1: Impacto Sub-Bass Boom profundo (160Hz -> 32Hz)
+          const osc = this.ctx.createOscillator();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(160, now);
+          osc.frequency.exponentialRampToValueAtTime(32, now + 0.45);
+
+          const oscGain = this.ctx.createGain();
+          oscGain.gain.setValueAtTime(1.0, now);
+          oscGain.gain.exponentialRampToValueAtTime(0.005, now + 0.52);
+
+          osc.connect(oscGain);
+          oscGain.connect(master);
+          osc.start(now);
+          osc.stop(now + 0.54);
+
+          // Camada 2: Ruído da explosão e detonação com filtro lowpass dinâmico
+          const bufferSize = Math.floor(this.ctx.sampleRate * 0.62);
+          const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+          const data = buffer.getChannelData(0);
+          for (let i = 0; i < bufferSize; i++) {
+            data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (this.ctx.sampleRate * 0.17));
+          }
+          const noise = this.ctx.createBufferSource();
+          noise.buffer = buffer;
+
+          const filter = this.ctx.createBiquadFilter();
+          filter.type = 'lowpass';
+          filter.frequency.setValueAtTime(1200, now);
+          filter.frequency.exponentialRampToValueAtTime(80, now + 0.52);
+
+          const noiseGain = this.ctx.createGain();
+          noiseGain.gain.setValueAtTime(1.0, now);
+          noiseGain.gain.exponentialRampToValueAtTime(0.01, now + 0.58);
+
+          noise.connect(filter);
+          filter.connect(noiseGain);
+          noiseGain.connect(master);
+          noise.start(now);
+        } catch (e) {
+          console.warn('Audio error:', e);
+        }
+      }
+    };
+
+
+    function applyBombPenalty(gridX, gridY) {
+      B7AudioEngine.playBombExplosion();
+      state.score = Math.max(0, state.score - 10);
+      state.shake = Math.max(state.shake, 14);
+      const pos = gridToIso(gridX + 0.5, gridY + 0.5, 16);
+      emitParticles(pos.x, pos.y, ['#ff6b00', '#ff2a55', '#ffd54f', '#334155'], 26);
+      spawnFloatingText(pos.x, pos.y - 8, '-10', '#ff4d6d');
+
+      // Encolhe 1 segmento da cauda se a cobrinha tiver mais de 3 segmentos
+      if (state.snake.length > 3) {
+        state.snake.pop();
+        if (state.prevSnake.length > state.snake.length) {
+          state.prevSnake.pop();
+        }
+      }
+    }
+
+    // --- BARRA DE PRESENTES & CHAT TIKTOK LIVE ---
+    const LIVE_USERS = [
+      'user953730901', 'lucas_plays', 'ana.clara99', 'pedro_gamer',
+      'sofia_live', 'kaio_ttk', 'mariana.vip', 'rafa_oficial'
+    ];
+
+    function pushLiveNotification(gift) {
+      const feed = document.getElementById('live-chat-feed');
+      const user = LIVE_USERS[Math.floor(Math.random() * LIVE_USERS.length)];
+      const badgeLevel = Math.floor(Math.random() * 28) + 2;
+
+      const toast = document.createElement('div');
+      toast.className = 'chat-toast flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/55 backdrop-blur-md border border-white/10 text-[11px] shadow-lg max-w-full';
+
+      const iconHtml = gift.img
+        ? `<img src="${gift.img}" class="w-4 h-4 rounded-full object-cover inline-block border border-white/20" />`
+        : `<span>${gift.emoji || '🎁'}</span>`;
+
+      const rewardEmoji = gift.type === 'apple' ? '🍎' : '💣';
+
+      toast.innerHTML = `
+        <span class="px-1.5 py-0.2 rounded bg-indigo-500/80 text-[9px] font-extrabold text-white">💎 ${badgeLevel}</span>
+        <span class="font-bold text-slate-200 truncate max-w-[110px]">${user}</span>
+        <span class="text-slate-300">enviou</span>
+        ${iconHtml}
+        <span class="font-extrabold text-amber-300">×${gift.qty}</span>
+        <span class="ml-0.5">${rewardEmoji}</span>
+      `;
+
+      feed.appendChild(toast);
+      while (feed.children.length > 3) {
+        feed.removeChild(feed.firstChild);
+      }
+
+      setTimeout(() => {
+        if (toast.parentNode) {
+          toast.style.opacity = '0';
+          toast.style.transition = 'opacity 0.3s ease';
+          setTimeout(() => toast.remove(), 300);
+        }
+      }, 3200);
+    }
+
+    function triggerGift(gift) {
+      if (state.gameOver) {
+        initGame(true);
+      } else if (!state.started) {
+        state.started = true;
+      }
+
+      const qty = Math.max(1, parseInt(gift.qty, 10) || 1);
+      if (gift.type === 'apple') {
+        spawnApples(qty);
+      } else {
+        spawnBombs(qty);
+      }
+      pushLiveNotification(gift);
+    }
+
+    function renderGiftBar() {
+      const bar = document.getElementById('gift-bar');
+      if (bar) {
+        bar.innerHTML = '';
+
+      // Ajusta colunas dinamicamente conforme quantidade de presentes
+      const cols = Math.min(gifts.length, 5);
+      bar.style.gridTemplateColumns = `repeat(${Math.max(1, cols)}, minmax(0, 1fr))`;
+
+      gifts.forEach(gift => {
+        const card = document.createElement('button');
+        card.type = 'button';
+        const isApple = gift.type === 'apple';
+        card.className = `group relative flex flex-col items-center justify-center py-1.5 px-1 rounded-xl border transition active:scale-90 shadow-md ${
+          isApple
+            ? 'bg-slate-900/85 hover:bg-emerald-950/70 border-emerald-400/30'
+            : 'bg-slate-900/85 hover:bg-rose-950/70 border-rose-500/35'
+        }`;
+
+        const visual = gift.img
+          ? `<img src="${gift.img}" alt="${gift.name}" class="w-7 h-7 rounded-lg object-cover border border-white/25 shadow-sm group-hover:scale-110 transition" />`
+          : `<span class="text-xl leading-none group-hover:scale-110 transition">${gift.emoji || '🎁'}</span>`;
+
+        const rewardIcon = isApple ? '🍎' : '💣';
+
+        card.innerHTML = `
+          <div class="mb-1 flex items-center justify-center h-7">${visual}</div>
+          <div class="flex items-center justify-center gap-0.5 text-[11px] font-black tracking-tight text-white bg-black/45 px-1.5 py-0.5 rounded-md w-full">
+            <span class="text-amber-300">:${gift.qty}</span>
+            <span>${rewardIcon}</span>
+          </div>
+        `;
+
+        card.addEventListener('click', () => triggerGift(gift));
+        bar.appendChild(card);
+      });
+      }
+      renderB7QuickGiftButtons();
+    }
+
+    // --- MODAL DE CONFIGURAÇÃO DE PRESENTES ---
+    function renderConfigModal() {
+      const list = document.getElementById('config-list');
+      list.innerHTML = '';
+
+      gifts.forEach((gift, index) => {
+        const row = document.createElement('div');
+        row.className = 'flex items-center gap-2 p-2.5 rounded-2xl bg-white/5 border border-white/10';
+
+        const preview = gift.img
+          ? `<img src="${gift.img}" class="w-10 h-10 rounded-xl object-cover border border-white/20" />`
+          : `<span class="text-2xl">${gift.emoji || '🎁'}</span>`;
+
+        row.innerHTML = `
+          <label class="relative w-11 h-11 rounded-xl bg-slate-800 hover:bg-slate-700 border border-dashed border-emerald-400/50 flex items-center justify-center cursor-pointer shrink-0 overflow-hidden" title="Trocar foto pequena">
+            ${preview}
+            <input type="file" accept="image/*" class="hidden gift-file-input" data-idx="${index}" />
+            <span class="absolute bottom-0 right-0 bg-emerald-500 text-slate-950 text-[9px] font-black px-1 rounded-tl">📷</span>
+          </label>
+
+          <div class="flex-1 min-w-0 flex flex-col gap-1">
+            <input type="text" value="${gift.name}" data-idx="${index}" class="gift-name-input bg-black/40 border border-white/10 rounded-lg px-2 py-1 text-xs font-bold text-white focus:outline-none focus:border-emerald-400" placeholder="Nome do presente" />
+            <div class="flex items-center gap-1.5">
+              <span class="text-[11px] text-slate-400 font-bold">Qtd:</span>
+              <input type="number" min="1" max="500" value="${gift.qty}" data-idx="${index}" class="gift-qty-input w-16 bg-black/40 border border-white/10 rounded-lg px-2 py-0.5 text-xs font-extrabold text-amber-300 focus:outline-none focus:border-emerald-400" />
+              <button type="button" data-idx="${index}" class="gift-type-btn flex-1 py-0.5 px-2 rounded-lg text-xs font-extrabold border transition ${
+                gift.type === 'apple'
+                  ? 'bg-emerald-500/20 border-emerald-400/50 text-emerald-300'
+                  : 'bg-rose-500/20 border-rose-400/50 text-rose-300'
+              }">
+                ${gift.type === 'apple' ? '🍎 Maçã' : '💣 Bomba'}
+              </button>
+            </div>
+          </div>
+
+          ${gifts.length > 1 ? `
+            <button type="button" data-idx="${index}" class="gift-del-btn w-7 h-7 rounded-lg bg-rose-500/15 hover:bg-rose-500/30 text-rose-300 text-xs font-bold flex items-center justify-center shrink-0">✕</button>
+          ` : ''}
+        `;
+
+        list.appendChild(row);
+      });
+
+      // Eventos de upload de imagem redimensionada (leve para localStorage)
+      list.querySelectorAll('.gift-file-input').forEach(input => {
+        input.addEventListener('change', e => {
+          const idx = parseInt(e.target.dataset.idx, 10);
+          const file = e.target.files[0];
+          if (!file) return;
+
+          const reader = new FileReader();
+          reader.onload = ev => {
+            const img = new Image();
+            img.onload = () => {
+              const off = document.createElement('canvas');
+              off.width = 64;
+              off.height = 64;
+              const octx = off.getContext('2d');
+              octx.drawImage(img, 0, 0, 64, 64);
+              gifts[idx].img = off.toDataURL('image/png');
+              renderConfigModal();
+            };
+            img.src = ev.target.result;
+          };
+          reader.readAsDataURL(file);
+        });
+      });
+
+      list.querySelectorAll('.gift-name-input').forEach(input => {
+        input.addEventListener('input', e => {
+          gifts[parseInt(e.target.dataset.idx, 10)].name = e.target.value;
+        });
+      });
+
+      list.querySelectorAll('.gift-qty-input').forEach(input => {
+        input.addEventListener('input', e => {
+          gifts[parseInt(e.target.dataset.idx, 10)].qty = Math.max(1, parseInt(e.target.value, 10) || 1);
+        });
+      });
+
+      list.querySelectorAll('.gift-type-btn').forEach(btn => {
+        btn.addEventListener('click', e => {
+          const idx = parseInt(e.currentTarget.dataset.idx, 10);
+          gifts[idx].type = gifts[idx].type === 'apple' ? 'bomb' : 'apple';
+          renderConfigModal();
+        });
+      });
+
+      list.querySelectorAll('.gift-del-btn').forEach(btn => {
+        btn.addEventListener('click', e => {
+          const idx = parseInt(e.currentTarget.dataset.idx, 10);
+          gifts.splice(idx, 1);
+          renderConfigModal();
+        });
+      });
+    }
+
+    const openCfgBtn = document.getElementById('open-config-btn');
+    if (openCfgBtn) {
+      openCfgBtn.addEventListener('click', () => {
+        renderConfigModal();
+        document.getElementById('config-modal').classList.remove('hidden');
+      });
+    }
+
+    document.getElementById('close-config-btn')?.addEventListener('click', () => {
+      document.getElementById('config-modal').classList.add('hidden');
+    });
+
+    document.getElementById('add-gift-btn')?.addEventListener('click', () => {
+      const sampleEmojis = ['👑', '🚀', '💎', '🔥', '🦁', '🍕', '⭐'];
+      gifts.push({
+        id: 'g_' + Date.now(),
+        name: 'Presente',
+        emoji: sampleEmojis[gifts.length % sampleEmojis.length],
+        img: null,
+        qty: 5,
+        type: 'apple'
+      });
+      renderConfigModal();
+    });
+
+    document.getElementById('save-config-btn')?.addEventListener('click', () => {
+      saveGifts();
+      renderGiftBar();
+      document.getElementById('config-modal').classList.add('hidden');
+    });
+
+    // --- PILOTO AUTOMÁTICO INTELIGENTE (BFS + SIMULAÇÃO DE CAUDA + COILING + DESVIO DE BOMBAS) ---
+    const DIRS = [
+      { x: 1, y: 0 },
+      { x: -1, y: 0 },
+      { x: 0, y: 1 },
+      { x: 0, y: -1 }
+    ];
+
+    function buildBlockedSet(snakeArr, ignoreTail = true, includeBombBlast = true) {
+      const blocked = new Set();
+      const limit = ignoreTail ? snakeArr.length - 1 : snakeArr.length;
+      for (let i = 0; i < limit; i++) {
+        blocked.add(`${snakeArr[i].x},${snakeArr[i].y}`);
+      }
+      for (const b of state.bombs) {
+        blocked.add(`${b.x},${b.y}`);
+        if (includeBombBlast && b.timer < 2400) {
+          for (let dx = -1; dx <= 1; dx++) {
+            for (let dy = -1; dy <= 1; dy++) {
+              blocked.add(`${b.x + dx},${b.y + dy}`);
+            }
+          }
+        }
+      }
+      return blocked;
+    }
+
+    function bfsPath(start, target, blockedSet) {
+      const queue = [[start]];
+      const visited = new Set([`${start.x},${start.y}`]);
+
+      while (queue.length > 0) {
+        const path = queue.shift();
+        const curr = path[path.length - 1];
+
+        if (curr.x === target.x && curr.y === target.y) {
+          return path;
+        }
+
+        for (const d of DIRS) {
+          const nx = curr.x + d.x;
+          const ny = curr.y + d.y;
+          const key = `${nx},${ny}`;
+          if (!isInside(nx, ny) || visited.has(key)) continue;
+          if (blockedSet.has(key) && !(nx === target.x && ny === target.y)) continue;
+
+          visited.add(key);
+          queue.push([...path, { x: nx, y: ny }]);
+        }
+      }
+      return null;
+    }
+
+    function isPathSafeAfterEating(path) {
+      const simSnake = state.snake.map(s => ({ ...s }));
+      for (let i = 1; i < path.length; i++) {
+        simSnake.unshift({ x: path[i].x, y: path[i].y });
+        if (i < path.length - 1) {
+          simSnake.pop();
+        }
+      }
+      const simHead = simSnake[0];
+      const simTail = simSnake[simSnake.length - 1];
+      const blocked = buildBlockedSet(simSnake, true, false);
+      const pathToTail = bfsPath(simHead, simTail, blocked);
+      return pathToTail !== null && pathToTail.length > 1;
+    }
+
+    function countReachableSpace(start, blockedSet) {
+      const queue = [start];
+      const visited = new Set([`${start.x},${start.y}`]);
+      let count = 0;
+
+      while (queue.length > 0) {
+        const curr = queue.shift();
+        count++;
+        for (const d of DIRS) {
+          const nx = curr.x + d.x;
+          const ny = curr.y + d.y;
+          const key = `${nx},${ny}`;
+          if (isInside(nx, ny) && !visited.has(key) && !blockedSet.has(key)) {
+            visited.add(key);
+            queue.push({ x: nx, y: ny });
+          }
+        }
+      }
+      return count;
+    }
+
+    function computeNextAIDirection() {
+      const head = state.snake[0];
+      const tail = state.snake[state.snake.length - 1];
+      const validDirs = DIRS.filter(
+        d => !(d.x === -state.dir.x && d.y === -state.dir.y)
+      );
+
+      // 1. Busca caminho seguro até a maçã mais próxima garantindo alcance futuro até a cauda
+      if (state.foods.length > 0) {
+        const sortedFoods = [...state.foods].sort(
+          (a, b) => Math.hypot(a.x - head.x, a.y - head.y) - Math.hypot(b.x - head.x, b.y - head.y)
+        );
+        const blockedWithBlast = buildBlockedSet(state.snake, true, true);
+
+        for (const food of sortedFoods) {
+          const path = bfsPath(head, food, blockedWithBlast);
+          if (path && path.length > 1 && isPathSafeAfterEating(path)) {
+            return {
+              x: path[1].x - head.x,
+              y: path[1].y - head.y
+            };
+          }
+        }
+      }
+
+      // 2. Modo Coiling (curvas enroladas abraçando o próprio corpo e bordas até abrir passagem)
+      const blockedSafe = buildBlockedSet(state.snake, true, true);
+      const tailPath = bfsPath(head, tail, blockedSafe);
+      if (tailPath && tailPath.length > 1) {
+        let bestStep = { x: tailPath[1].x - head.x, y: tailPath[1].y - head.y };
+        let bestCoilScore = -999;
+
+        for (const d of validDirs) {
+          const nx = head.x + d.x;
+          const ny = head.y + d.y;
+          const key = `${nx},${ny}`;
+          if (!isInside(nx, ny) || blockedSafe.has(key)) continue;
+
+          const subPath = bfsPath({ x: nx, y: ny }, tail, blockedSafe);
+          if (subPath) {
+            let adjacentWallsOrBody = 0;
+            for (const adj of DIRS) {
+              const ax = nx + adj.x;
+              const ay = ny + adj.y;
+              if (!isInside(ax, ay) || blockedSafe.has(`${ax},${ay}`)) {
+                adjacentWallsOrBody++;
+              }
+            }
+            const space = countReachableSpace({ x: nx, y: ny }, blockedSafe);
+            const coilScore = space * 2 + adjacentWallsOrBody * 3;
+            if (coilScore > bestCoilScore) {
+              bestCoilScore = coilScore;
+              bestStep = d;
+            }
+          }
+        }
+        return bestStep;
+      }
+
+      // 3. Fallback de sobrevivência máxima evitando bombas
+      const blockedMinimal = buildBlockedSet(state.snake, true, false);
+      let bestFallback = state.dir;
+      let maxSpace = -1;
+
+      for (const d of validDirs) {
+        const nx = head.x + d.x;
+        const ny = head.y + d.y;
+        const key = `${nx},${ny}`;
+        if (!isInside(nx, ny) || blockedMinimal.has(key)) continue;
+
+        let space = countReachableSpace({ x: nx, y: ny }, blockedMinimal);
+        for (const b of state.bombs) {
+          const distB = Math.hypot(nx - b.x, ny - b.y);
+          if (distB < 2.2) space -= 15;
+        }
+        if (space > maxSpace) {
+          maxSpace = space;
+          bestFallback = d;
+        }
+      }
+
+      return bestFallback;
+    }
+
+    // --- LÓGICA PRINCIPAL DO JOGO ---
+    function initGame(autoStart = true) {
+      const mid = Math.floor(GRID_SIZE / 2);
+      state.snake = [
+        { x: mid, y: mid },
+        { x: mid - 1, y: mid },
+        { x: mid - 2, y: mid },
+        { x: mid - 3, y: mid }
+      ];
+      state.prevSnake = state.snake.map(s => ({ ...s }));
+      state.dir = { x: 1, y: 0 };
+      state.nextDir = { x: 1, y: 0 };
+      state.foods = [];
+      state.bombs = [];
+      state.score = 0;
+      state.moveInterval = state.autoPlay ? 108 : 145;
+      state.moveAccumulator = 0;
+      state.particles = [];
+      state.floatingTexts = [];
+      state.gameOver = false;
+      state.gameOverTimer = 0;
+      state.started = autoStart;
+      state.shake = 0;
+      spawnApples(2);
+    }
+
+    function setDirection(dx, dy) {
+      if (state.autoPlay) {
+        setAutoPlayMode(false);
+      }
+      if (state.gameOver) {
+        initGame(true);
+        return;
+      }
+      if (!state.started) {
+        state.started = true;
+      }
+      if (dx !== -state.dir.x || dy !== -state.dir.y) {
+        state.nextDir = { x: dx, y: dy };
+      }
+    }
+
+    function setAutoPlayMode(enabled) {
+      state.autoPlay = enabled;
+      const btn = document.getElementById('toggle-ai-btn');
+      if (btn) {
+        if (enabled) {
+          btn.innerHTML = '<span>🤖 Auto IA: ON</span>';
+          btn.className = 'px-2.5 py-1 rounded-full bg-emerald-500/25 hover:bg-emerald-500/40 border border-emerald-400/50 text-[11px] font-extrabold text-emerald-200 flex items-center gap-1 transition shadow-sm';
+          state.started = true;
+          state.moveInterval = Math.min(state.moveInterval, 108);
+        } else {
+          btn.innerHTML = '<span>🎮 Manual</span>';
+          btn.className = 'px-2.5 py-1 rounded-full bg-cyan-500/25 hover:bg-cyan-500/40 border border-cyan-400/50 text-[11px] font-extrabold text-cyan-200 flex items-center gap-1 transition shadow-sm';
+        }
+      }
+    }
+
+    function triggerGameOver(x, y) {
+      state.gameOver = true;
+      state.gameOverTimer = 1400; // Reinício automático em 1.4s no modo Auto IA
+      state.shake = 18;
+      const pos = gridToIso(x + 0.5, y + 0.5, 12);
+      emitParticles(pos.x, pos.y, ['#ff4d6d', '#ff9e00', '#ffffff', '#334155'], 38);
+    }
+
+    function update(dt) {
+      state.tongueTimer += dt;
+
+      for (const f of state.foods) {
+        f.spawnScale = Math.min(1, f.spawnScale + dt * 0.008);
+      }
+      for (const b of state.bombs) {
+        b.spawnScale = Math.min(1, b.spawnScale + dt * 0.008);
+      }
+
+      for (let i = state.particles.length - 1; i >= 0; i--) {
+        const p = state.particles[i];
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += 0.22;
+        p.life -= 1;
+        if (p.life <= 0) state.particles.splice(i, 1);
+      }
+
+      for (let i = state.floatingTexts.length - 1; i >= 0; i--) {
+        const ft = state.floatingTexts[i];
+        ft.y += ft.vy;
+        ft.life -= 1;
+        if (ft.life <= 0) state.floatingTexts.splice(i, 1);
+      }
+
+      if (state.shake > 0) state.shake = Math.max(0, state.shake - 1);
+
+      if (state.gameOver) {
+        if (state.autoPlay) {
+          state.gameOverTimer -= dt;
+          if (state.gameOverTimer <= 0) {
+            initGame(true);
+          }
+        }
+        return;
+      }
+
+      if (!state.started) return;
+
+      // Atualiza temporizador das bombas 2.5D (cada explosão tira 10 pontos)
+      for (let i = state.bombs.length - 1; i >= 0; i--) {
+        const b = state.bombs[i];
+        b.timer -= dt;
+        if (b.timer <= 0) {
+          const bx = b.x;
+          const by = b.y;
+          state.bombs.splice(i, 1);
+          applyBombPenalty(bx, by);
+        }
+      }
+
+      state.moveAccumulator += dt;
+      if (state.moveAccumulator >= state.moveInterval) {
+        state.moveAccumulator -= state.moveInterval;
+        state.prevSnake = state.snake.map(s => ({ ...s }));
+
+        if (state.autoPlay) {
+          state.nextDir = computeNextAIDirection();
+        }
+        state.dir = { ...state.nextDir };
+
+        const head = state.snake[0];
+        const newHead = {
+          x: head.x + state.dir.x,
+          y: head.y + state.dir.y
+        };
+
+        // Colisão com bordas da arena
+        if (!isInside(newHead.x, newHead.y)) {
+          triggerGameOver(head.x, head.y);
+          return;
+        }
+
+        // Colisão com bomba ativa (tira 10 pontos e continua o jogo)
+        const hitBombIdx = state.bombs.findIndex(b => b.x === newHead.x && b.y === newHead.y);
+        if (hitBombIdx !== -1) {
+          const hitBomb = state.bombs.splice(hitBombIdx, 1)[0];
+          applyBombPenalty(hitBomb.x, hitBomb.y);
+        }
+
+        // Colisão com o próprio corpo (ignorando a ponta da cauda que vai sair)
+        for (let i = 0; i < state.snake.length - 1; i++) {
+          if (state.snake[i].x === newHead.x && state.snake[i].y === newHead.y) {
+            triggerGameOver(head.x, head.y);
+            return;
+          }
+        }
+
+        state.snake.unshift(newHead);
+
+        // Verifica se comeu alguma maçã
+        const foodIdx = state.foods.findIndex(f => f.x === newHead.x && f.y === newHead.y);
+        if (foodIdx !== -1) {
+          B7AudioEngine.playAppleCrunch();
+          const eatenFood = state.foods.splice(foodIdx, 1)[0];
+          state.score += 10;
+          if (state.score > state.bestScore) {
+            state.bestScore = state.score;
+            localStorage.setItem('snake25d_best', String(state.bestScore));
+          }
+
+          const minSpeed = state.autoPlay ? 60 : 72;
+          state.moveInterval = Math.max(minSpeed, state.moveInterval - 1.5);
+
+          const tail = state.prevSnake[state.prevSnake.length - 1];
+          state.prevSnake.push({ ...tail });
+
+          const fPos = gridToIso(eatenFood.x + 0.5, eatenFood.y + 0.5, 14);
+          emitParticles(fPos.x, fPos.y, ['#ff3b5c', '#7dff6b', '#ffd54f', '#ffffff'], 20);
+
+          if (state.foods.length === 0) {
+            spawnApples(1);
+          }
+        } else {
+          state.snake.pop();
+        }
+      }
+    }
+
+    // --- RENDERIZAÇÃO 2.5D ORGÂNICA ---
+    function drawBoard() {
+      const bgGrad = ctx.createLinearGradient(0, 0, 0, HEIGHT);
+      bgGrad.addColorStop(0, COLORS.bgTop);
+      bgGrad.addColorStop(1, COLORS.bgBottom);
+      ctx.fillStyle = bgGrad;
+      ctx.fillRect(0, 0, WIDTH, HEIGHT);
+
+      // Brilho ambiental suave atrás do tabuleiro
+      const glow = ctx.createRadialGradient(ORIGIN_X, ORIGIN_Y + 125, 20, ORIGIN_X, ORIGIN_Y + 125, 275);
+      glow.addColorStop(0, 'rgba(0, 229, 184, 0.14)');
+      glow.addColorStop(1, 'rgba(0, 229, 184, 0)');
+      ctx.fillStyle = glow;
+      ctx.fillRect(0, 0, WIDTH, HEIGHT);
+
+      // Base 3D espessa da ilha flutuante
+      const pTop = gridToIso(0, 0, 0);
+      const pLeft = gridToIso(0, GRID_SIZE, 0);
+      const pBottom = gridToIso(GRID_SIZE, GRID_SIZE, 0);
+      const pRight = gridToIso(GRID_SIZE, 0, 0);
+      const depth = 28;
+
+      ctx.fillStyle = COLORS.boardLeft;
+      ctx.beginPath();
+      ctx.moveTo(pLeft.x, pLeft.y);
+      ctx.lineTo(pBottom.x, pBottom.y);
+      ctx.lineTo(pBottom.x, pBottom.y + depth);
+      ctx.lineTo(pLeft.x, pLeft.y + depth);
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.fillStyle = COLORS.boardRight;
+      ctx.beginPath();
+      ctx.moveTo(pBottom.x, pBottom.y);
+      ctx.lineTo(pRight.x, pRight.y);
+      ctx.lineTo(pRight.x, pRight.y + depth);
+      ctx.lineTo(pBottom.x, pBottom.y + depth);
+      ctx.closePath();
+      ctx.fill();
+
+      // Ladrilhos isométricos 16x16
+      for (let gx = 0; gx < GRID_SIZE; gx++) {
+        for (let gy = 0; gy < GRID_SIZE; gy++) {
+          const t = gridToIso(gx, gy);
+          const r = gridToIso(gx + 1, gy);
+          const b = gridToIso(gx + 1, gy + 1);
+          const l = gridToIso(gx, gy + 1);
+
+          ctx.fillStyle = (gx + gy) % 2 === 0 ? COLORS.tileEven : COLORS.tileOdd;
+          ctx.beginPath();
+          ctx.moveTo(t.x, t.y);
+          ctx.lineTo(r.x, r.y);
+          ctx.lineTo(b.x, b.y);
+          ctx.lineTo(l.x, l.y);
+          ctx.closePath();
+          ctx.fill();
+
+          ctx.strokeStyle = COLORS.gridLine;
+          ctx.lineWidth = 1;
+          ctx.stroke();
+        }
+      }
+
+      // Contorno neon brilhante nas bordas superiores da arena
+      ctx.save();
+      ctx.strokeStyle = COLORS.neonEdge;
+      ctx.lineWidth = 2;
+      ctx.shadowColor = COLORS.neonEdge;
+      ctx.shadowBlur = 12;
+      ctx.beginPath();
+      ctx.moveTo(pTop.x, pTop.y);
+      ctx.lineTo(pRight.x, pRight.y);
+      ctx.lineTo(pBottom.x, pBottom.y);
+      ctx.lineTo(pLeft.x, pLeft.y);
+      ctx.closePath();
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    function drawApple25D(food, time) {
+      const bob = 7 + Math.sin(time * 0.006 + food.phase) * 3.5;
+      const sc = food.spawnScale;
+      const ground = gridToIso(food.x + 0.5, food.y + 0.5, 0);
+      const pos = gridToIso(food.x + 0.5, food.y + 0.5, bob);
+
+      // Sombra projetada no piso
+      const shadowScale = (1 - (bob - 7) * 0.03) * sc;
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.48)';
+      ctx.beginPath();
+      ctx.ellipse(ground.x, ground.y + 2, 10 * shadowScale, 5.5 * shadowScale, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.save();
+      ctx.translate(pos.x, pos.y);
+      ctx.scale(sc, sc);
+
+      // Corpo orgânico da maçã (dois lóbulos levemente arredondados)
+      const grad = ctx.createRadialGradient(-4, -5, 1.5, 0, 0, 12);
+      grad.addColorStop(0, '#ff9aa2');
+      grad.addColorStop(0.35, '#ff2a55');
+      grad.addColorStop(0.85, '#b80d32');
+      grad.addColorStop(1, '#7a061f');
+
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.moveTo(0, -8);
+      ctx.bezierCurveTo(9, -12, 13, -2, 9, 7);
+      ctx.bezierCurveTo(6, 11, 2, 10, 0, 8.5);
+      ctx.bezierCurveTo(-2, 10, -6, 11, -9, 7);
+      ctx.bezierCurveTo(-13, -2, -9, -12, 0, -8);
+      ctx.fill();
+
+      // Brilho especular
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.65)';
+      ctx.beginPath();
+      ctx.ellipse(-4.2, -3.5, 2.2, 4, -0.45, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Cabinho marrom
+      ctx.strokeStyle = '#6b3e1e';
+      ctx.lineWidth = 2.2;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(0, -7.5);
+      ctx.quadraticCurveTo(1, -12, 3, -13.5);
+      ctx.stroke();
+
+      // Folha verde brilhante
+      ctx.fillStyle = '#4ade80';
+      ctx.beginPath();
+      ctx.ellipse(4.8, -10.5, 4.5, 2.3, -0.4, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.restore();
+    }
+
+    function drawBomb25D(bomb, time) {
+      const bob = 5 + Math.sin(time * 0.009 + bomb.phase) * 2;
+      const sc = bomb.spawnScale;
+      const ground = gridToIso(bomb.x + 0.5, bomb.y + 0.5, 0);
+      const pos = gridToIso(bomb.x + 0.5, bomb.y + 0.5, bob);
+      const urgent = bomb.timer < 2000;
+      const pulse = urgent ? 1 + Math.sin(time * 0.03) * 0.14 : 1;
+
+      // Sombra no piso (com halo vermelho se estiver prestes a explodir)
+      ctx.fillStyle = urgent ? 'rgba(255, 50, 80, 0.45)' : 'rgba(0, 0, 0, 0.5)';
+      ctx.beginPath();
+      ctx.ellipse(ground.x, ground.y + 2, 11 * sc * pulse, 6 * sc * pulse, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.save();
+      ctx.translate(pos.x, pos.y);
+      ctx.scale(sc * pulse, sc * pulse);
+
+      // Esfera metálica escura da bomba
+      const bGrad = ctx.createRadialGradient(-3.5, -4, 1.5, 0, 0, 11.5);
+      if (urgent && Math.floor(time / 120) % 2 === 0) {
+        bGrad.addColorStop(0, '#ff8fa3');
+        bGrad.addColorStop(0.5, '#e63946');
+        bGrad.addColorStop(1, '#590d22');
+      } else {
+        bGrad.addColorStop(0, '#64748b');
+        bGrad.addColorStop(0.45, '#1e293b');
+        bGrad.addColorStop(1, '#090d16');
+      }
+
+      ctx.fillStyle = bGrad;
+      ctx.beginPath();
+      ctx.arc(0, 0, 10.5, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Anel do pavio
+      ctx.fillStyle = '#475569';
+      ctx.fillRect(-3, -12, 6, 3);
+
+      // Pavio curvo
+      ctx.strokeStyle = '#d4a373';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(0, -12);
+      ctx.quadraticCurveTo(4, -16, 7, -14);
+      ctx.stroke();
+
+      // Faísca acesa na ponta do pavio
+      const sparkR = 2.8 + Math.sin(time * 0.05) * 1.3;
+      ctx.fillStyle = '#ffd166';
+      ctx.beginPath();
+      ctx.arc(7, -14, sparkR, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = '#ff5400';
+      ctx.beginPath();
+      ctx.arc(7, -14, sparkR * 0.55, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.restore();
+    }
+
+    function drawOrganicSnake(interpT, time) {
+      if (state.snake.length === 0) return;
+
+      // Calcula posições interpoladas entre prevSnake e snake para movimento sedoso
+      const points = state.snake.map((seg, idx) => {
+        const prev = state.prevSnake[idx] || seg;
+        const gx = lerp(prev.x, seg.x, interpT) + 0.5;
+        const gy = lerp(prev.y, seg.y, interpT) + 0.5;
+        const ratio = idx / Math.max(1, state.snake.length - 1);
+        const radius = idx === 0 ? 12.2 : lerp(11.2, 4.2, Math.pow(ratio, 0.85));
+        const heightZ = idx === 0 ? 9.5 : lerp(8.5, 4.0, ratio);
+        const ground = gridToIso(gx, gy, 0);
+        const pos = gridToIso(gx, gy, heightZ);
+        return { gx, gy, x: pos.x, y: pos.y, groundX: ground.x, groundY: ground.y, radius, idx };
+      });
+
+      // 1. Sombra contínua projetada no chão
+      ctx.save();
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.42)';
+      for (let i = points.length - 1; i >= 0; i--) {
+        const p = points[i];
+        ctx.beginPath();
+        ctx.ellipse(p.groundX, p.groundY + 2, p.radius * 0.95, p.radius * 0.55, 0, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.restore();
+
+      // 2. Desenha sub-esferas interpoladas entre cada segmento para um corpo redondo contínuo
+      const renderNodes = [];
+      for (let i = points.length - 1; i >= 1; i--) {
+        const curr = points[i];
+        const next = points[i - 1];
+        const steps = 4;
+        for (let s = 0; s < steps; s++) {
+          const st = s / steps;
+          renderNodes.push({
+            x: lerp(curr.x, next.x, st),
+            y: lerp(curr.y, next.y, st),
+            radius: lerp(curr.radius, next.radius, st),
+            depth: lerp(curr.gx + curr.gy, next.gx + next.gy, st),
+            isHead: false
+          });
+        }
+      }
+      renderNodes.push({
+        x: points[0].x,
+        y: points[0].y,
+        radius: points[0].radius,
+        depth: points[0].gx + points[0].gy,
+        isHead: true
+      });
+
+      // Ordena pela profundidade isométrica para curvas se sobreporem corretamente
+      renderNodes.sort((a, b) => a.depth - b.depth);
+
+      for (const node of renderNodes) {
+        if (node.isHead) continue;
+        const grad = ctx.createRadialGradient(
+          node.x - node.radius * 0.35,
+          node.y - node.radius * 0.35,
+          node.radius * 0.1,
+          node.x,
+          node.y,
+          node.radius
+        );
+        grad.addColorStop(0, COLORS.snakeLight);
+        grad.addColorStop(0.45, COLORS.snakeMain);
+        grad.addColorStop(1, COLORS.snakeDark);
+
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.arc(node.x, node.y, node.radius, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // 3. Cabeça Expressiva (Boca, Língua Bífida e Olhos 3D que seguem o movimento)
+      const head = points[0];
+      const isoForward = gridToIso(head.gx + state.dir.x * 0.5, head.gy + state.dir.y * 0.5, 9.5);
+      const angle = Math.atan2(isoForward.y - head.y, isoForward.x - head.x);
+
+      // Distância até a maçã mais próxima para abrir a boca antes de morder
+      let minFoodDist = 99;
+      for (const f of state.foods) {
+        const d = Math.hypot(f.x + 0.5 - head.gx, f.y + 0.5 - head.gy);
+        if (d < minFoodDist) minFoodDist = d;
+      }
+      const mouthOpen = minFoodDist < 2.3 ? Math.max(0, 1 - (minFoodDist - 0.8) / 1.5) : 0;
+
+      ctx.save();
+      ctx.translate(head.x, head.y);
+
+      // Língua bífida animada
+      const tongueWave = Math.sin(time * 0.018);
+      if (tongueWave > 0.15 || mouthOpen > 0.2) {
+        const ext = (mouthOpen > 0.2 ? 12 : 9 * tongueWave);
+        ctx.save();
+        ctx.rotate(angle);
+        ctx.strokeStyle = '#ff2a5f';
+        ctx.lineWidth = 2.2;
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        ctx.moveTo(head.radius * 0.7, 0);
+        ctx.lineTo(head.radius + ext, 0);
+        ctx.lineTo(head.radius + ext + 3.5, -2.5);
+        ctx.moveTo(head.radius + ext, 0);
+        ctx.lineTo(head.radius + ext + 3.5, 2.5);
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      // Esfera da cabeça
+      const hGrad = ctx.createRadialGradient(-4, -5, 1.5, 0, 0, head.radius);
+      hGrad.addColorStop(0, '#b8fff3');
+      hGrad.addColorStop(0.5, '#00f5d4');
+      hGrad.addColorStop(1, '#008c72');
+      ctx.fillStyle = hGrad;
+      ctx.beginPath();
+      ctx.arc(0, 0, head.radius, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Boca aberta quando se aproxima de uma maçã
+      if (mouthOpen > 0.08) {
+        ctx.save();
+        ctx.rotate(angle);
+        ctx.fillStyle = '#4a0418';
+        ctx.beginPath();
+        ctx.ellipse(head.radius * 0.68, 0, 3.5 * mouthOpen + 1.5, 5.2 * mouthOpen + 1.5, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+
+      // Olhos expressivos posicionados perpendicularmente à direção do movimento
+      const perpX = -Math.sin(angle);
+      const perpY = Math.cos(angle);
+      const fwdX = Math.cos(angle);
+      const fwdY = Math.sin(angle);
+
+      [-1, 1].forEach(side => {
+        const eyeX = fwdX * 3.2 + perpX * (5.2 * side);
+        const eyeY = fwdY * 3.2 + perpY * (5.2 * side) - 2.2;
+
+        // Globo ocular branco
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(eyeX, eyeY, 3.8, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Pupila acompanhando a direção
+        ctx.fillStyle = '#090d16';
+        ctx.beginPath();
+        ctx.arc(eyeX + fwdX * 1.4, eyeY + fwdY * 1.4, 2.0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Ponto de brilho nos olhos
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(eyeX + fwdX * 0.8 - 0.7, eyeY + fwdY * 0.8 - 0.7, 0.9, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      ctx.restore();
+    }
+
+    function draw(time) {
+      ctx.save();
+      if (state.shake > 0) {
+        const sx = (Math.random() - 0.5) * state.shake;
+        const sy = (Math.random() - 0.5) * state.shake;
+        ctx.translate(sx, sy);
+      }
+
+      drawBoard();
+
+      const interpT = state.gameOver || !state.started
+        ? 1
+        : Math.min(1, state.moveAccumulator / state.moveInterval);
+
+      // Ordena maçãs e bombas por profundidade antes de desenhar
+      const items = [];
+      for (const f of state.foods) items.push({ type: 'apple', depth: f.x + f.y, data: f });
+      for (const b of state.bombs) items.push({ type: 'bomb', depth: b.x + b.y, data: b });
+      items.sort((a, b) => a.depth - b.depth);
+
+      for (const item of items) {
+        if (item.type === 'apple') drawApple25D(item.data, time);
+        else drawBomb25D(item.data, time);
+      }
+
+      // Desenha a cobrinha orgânica
+      drawOrganicSnake(interpT, time);
+
+      // Partículas
+      for (const p of state.particles) {
+        ctx.globalAlpha = Math.max(0, p.life / p.maxLife);
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+
+      // Textos flutuantes (-10 pontos nas bombas)
+      for (const ft of state.floatingTexts) {
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, ft.life / ft.maxLife);
+        ctx.font = '900 26px Outfit, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.lineWidth = 4;
+        ctx.strokeStyle = 'rgba(7, 7, 18, 0.85)';
+        ctx.strokeText(ft.text, ft.x, ft.y);
+        ctx.fillStyle = ft.color;
+        ctx.fillText(ft.text, ft.x, ft.y);
+        ctx.restore();
+      }
+
+      // HUD Superior Estilo TikTok
+      ctx.textAlign = 'center';
+      ctx.fillStyle = '#ffffff';
+      ctx.font = '900 54px Outfit, sans-serif';
+      ctx.fillText(String(state.score), WIDTH / 2, 74);
+
+      ctx.fillStyle = COLORS.gold;
+      ctx.font = '800 17px Outfit, sans-serif';
+      ctx.fillText(`RECORDE: ${state.bestScore}`, WIDTH / 2, 102);
+
+      // Tela de Fim de Jogo
+      if (state.gameOver) {
+        ctx.fillStyle = 'rgba(7, 7, 18, 0.74)';
+        ctx.fillRect(0, 0, WIDTH, HEIGHT);
+
+        ctx.fillStyle = '#ff4d6d';
+        ctx.font = '900 50px Outfit, sans-serif';
+        ctx.fillText('FIM DE JOGO', WIDTH / 2, 310);
+
+        ctx.fillStyle = '#ffffff';
+        ctx.font = '800 25px Outfit, sans-serif';
+        ctx.fillText(`Pontuação: ${state.score}`, WIDTH / 2, 355);
+
+        ctx.fillStyle = COLORS.snakeLight;
+        ctx.font = '600 19px Outfit, sans-serif';
+        ctx.fillText(
+          state.autoPlay ? 'Reiniciando automaticamente...' : 'Toque no tabuleiro ou ESPAÇO para reiniciar',
+          WIDTH / 2,
+          405
+        );
+      }
+
+      ctx.restore();
+    }
+
+    // --- LOOP DE ANIMAÇÃO ---
+    function gameLoop(timestamp) {
+      if (!state.lastTime) state.lastTime = timestamp;
+      const dt = Math.min(50, timestamp - state.lastTime);
+      state.lastTime = timestamp;
+
+      update(dt);
+      draw(timestamp);
+      requestAnimationFrame(gameLoop);
+    }
+
+    // --- CONTROLES DE TECLADO, TOQUE / SWIPE E BOTÕES ---
+    window.addEventListener('keydown', e => {
+      if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space'].includes(e.code)) {
+        e.preventDefault();
+      }
+      if (state.gameOver && (e.code === 'Space' || e.code === 'Enter')) {
+        initGame(true);
+        return;
+      }
+      if (e.code === 'ArrowUp' || e.code === 'KeyW') setDirection(0, -1);
+      else if (e.code === 'ArrowDown' || e.code === 'KeyS') setDirection(0, 1);
+      else if (e.code === 'ArrowLeft' || e.code === 'KeyA') setDirection(-1, 0);
+      else if (e.code === 'ArrowRight' || e.code === 'KeyD') setDirection(1, 0);
+    });
+
+    let pointerStart = null;
+    canvas.addEventListener('pointerdown', e => {
+      pointerStart = { x: e.clientX, y: e.clientY };
+      if (state.gameOver) {
+        initGame(true);
+      }
+    });
+
+    canvas.addEventListener('pointerup', e => {
+      if (!pointerStart) return;
+      const dx = e.clientX - pointerStart.x;
+      const dy = e.clientY - pointerStart.y;
+      if (Math.abs(dx) > 22 || Math.abs(dy) > 22) {
+        if (Math.abs(dx) > Math.abs(dy)) {
+          setDirection(dx > 0 ? 1 : -1, 0);
+        } else {
+          setDirection(0, dy > 0 ? 1 : -1);
+        }
+      }
+      pointerStart = null;
+    });
+
+    // Listeners com verificação de segurança (controles estão centralizados no Painel B7)
+    const toggleAiBtn = document.getElementById('toggle-ai-btn');
+    if (toggleAiBtn) {
+      toggleAiBtn.addEventListener('click', () => {
+        setAutoPlayMode(!state.autoPlay);
+        if (state.gameOver) initGame(true);
+      });
+    }
+
+    const btnUp = document.getElementById('btn-up');
+    if (btnUp) btnUp.addEventListener('click', () => setDirection(0, -1));
+    const btnDown = document.getElementById('btn-down');
+    if (btnDown) btnDown.addEventListener('click', () => setDirection(0, 1));
+    const btnLeft = document.getElementById('btn-left');
+    if (btnLeft) btnLeft.addEventListener('click', () => setDirection(-1, 0));
+    const btnRight = document.getElementById('btn-right');
+    if (btnRight) btnRight.addEventListener('click', () => setDirection(1, 0));
+
+    // Inicializa com Auto IA ativa
+    renderGiftBar();
+    setAutoPlayMode(true);
+    initGame(true);
+    requestAnimationFrame(gameLoop);
+  
+
+    // ========================================================
+    // B7 GAMES - SINCRONIZAÇÃO EM TEMPO REAL COM PYTHON & TIKTOK LIVE
+    // ========================================================
+    function updateB7AdminUI() {
+      // Atualiza botão principal de IA no Painel B7
+      const b7IaBtn = document.getElementById('b7-main-ia-btn');
+      const b7IaBadge = document.getElementById('b7-ia-badge-top');
+      if (b7IaBtn) {
+        if (state.autoPlay) {
+          b7IaBtn.className = 'b7-btn-ia w-full py-3.5 px-4 rounded-2xl flex items-center justify-between text-sm font-black transition';
+          b7IaBtn.innerHTML = `
+            <div class="flex items-center gap-2.5">
+              <span class="text-xl">🤖</span>
+              <div class="text-left">
+                <div class="text-xs uppercase tracking-wider text-emerald-950 font-extrabold">Piloto Automático</div>
+                <div class="text-base font-black text-emerald-950">MODO IA: ATIVO</div>
+              </div>
+            </div>
+            <span class="px-2.5 py-1 rounded-full bg-emerald-900/30 text-[11px] font-black text-emerald-950 border border-emerald-900/40">LIGADO</span>
+          `;
+          if (b7IaBadge) {
+            b7IaBadge.textContent = 'IA ATIVA';
+            b7IaBadge.className = 'b7-badge b7-badge-online';
+          }
+        } else {
+          b7IaBtn.className = 'b7-btn-ia off w-full py-3.5 px-4 rounded-2xl flex items-center justify-between text-sm font-black transition';
+          b7IaBtn.innerHTML = `
+            <div class="flex items-center gap-2.5">
+              <span class="text-xl">🎮</span>
+              <div class="text-left">
+                <div class="text-xs uppercase tracking-wider text-slate-400 font-bold">Controle do Jogo</div>
+                <div class="text-base font-black text-white">MODO MANUAL: ATIVO</div>
+              </div>
+            </div>
+            <span class="px-2.5 py-1 rounded-full bg-slate-800 text-[11px] font-bold text-slate-300 border border-slate-600">DESLIGADO</span>
+          `;
+          if (b7IaBadge) {
+            b7IaBadge.textContent = 'MANUAL';
+            b7IaBadge.className = 'b7-badge b7-badge-blue';
+          }
+        }
+      }
+
+      // Renderiza os botões rápidos de presentes no painel B7
+      renderB7QuickGiftButtons();
+    }
+
+    // Renderiza a grade de presentes no Painel B7 Azul
+    function renderB7QuickGiftButtons() {
+      const container = document.getElementById('b7-quick-gifts-grid');
+      if (!container) return;
+      container.innerHTML = '';
+
+      gifts.forEach(gift => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        const isApple = gift.type === 'apple';
+        btn.className = `group relative p-2.5 rounded-xl border flex flex-col items-center justify-center gap-1.5 transition active:scale-95 text-center ${
+          isApple
+            ? 'bg-slate-900/90 hover:bg-emerald-950/60 border-emerald-500/30 hover:border-emerald-400 shadow-sm'
+            : 'bg-slate-900/90 hover:bg-rose-950/60 border-rose-500/30 hover:border-rose-400 shadow-sm'
+        }`;
+
+        const iconHtml = gift.img
+          ? `<img src="${gift.img}" class="w-8 h-8 rounded-lg object-cover border border-white/20 shadow-sm group-hover:scale-110 transition" />`
+          : `<span class="text-2xl group-hover:scale-110 transition">${gift.emoji || '🎁'}</span>`;
+
+        btn.innerHTML = `
+          <div class="h-8 flex items-center justify-center">${iconHtml}</div>
+          <div class="w-full">
+            <div class="text-xs font-black text-white truncate">${gift.name}</div>
+            <div class="text-[10px] font-extrabold ${isApple ? 'text-emerald-400' : 'text-rose-400'} flex items-center justify-center gap-1">
+              <span>×${gift.qty}</span>
+              <span>${isApple ? '🍎 Maçã' : '💣 Bomba'}</span>
+            </div>
+          </div>
+        `;
+
+        btn.addEventListener('click', () => {
+          B7AudioEngine.init();
+          triggerGift(gift);
+          // Notifica backend
+          fetch('/api/trigger_gift', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(gift)
+          }).catch(() => {});
+        });
+
+        container.appendChild(btn);
+      });
+    }
+
+    // Intercepta setAutoPlayMode para atualizar também o Painel B7
+    const origSetAutoPlayMode = setAutoPlayMode;
+    setAutoPlayMode = function(enabled) {
+      origSetAutoPlayMode(enabled);
+      updateB7AdminUI();
+    };
+
+    // Conexão SSE com o Servidor Python Localhost
+    function initB7ServerSync() {
+      // Verifica se estamos em modo OBS (?obs=1 ou rota /game)
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('obs') === '1' || window.location.pathname.includes('/game')) {
+        document.body.classList.add('obs-mode');
+      }
+
+      // Carrega dados salvos do servidor Python
+      fetch('/api/config')
+        .then(r => r.json())
+        .then(cfg => {
+          if (cfg.username) {
+            const uInput = document.getElementById('b7-tiktok-user');
+            if (uInput) uInput.value = cfg.username;
+          }
+          if (cfg.euler_api_key) {
+            const kInput = document.getElementById('b7-euler-key');
+            if (kInput) kInput.value = cfg.euler_api_key;
+          }
+          if (cfg.gifts && Array.isArray(cfg.gifts) && cfg.gifts.length > 0) {
+            gifts = cfg.gifts;
+            renderGiftBar();
+            renderB7QuickGiftButtons();
+          }
+          if (typeof cfg.sound_volume === 'number') {
+            B7AudioEngine.setVolume(cfg.sound_volume);
+            const vSlider = document.getElementById('b7-volume-slider');
+            if (vSlider) vSlider.value = cfg.sound_volume * 100;
+          }
+          if (typeof cfg.auto_ia === 'boolean') {
+            setAutoPlayMode(cfg.auto_ia);
+          }
+        })
+        .catch(err => console.log('Modo autônomo local (sem servidor python rodando)'));
+
+      // Inicia escuta SSE para eventos ao vivo
+      try {
+        const evtSource = new EventSource('/events');
+
+        evtSource.addEventListener('gift', e => {
+          try {
+            const giftData = JSON.parse(e.data);
+            triggerGift(giftData);
+            logB7Event(`🎁 ${giftData.user || 'Espectador'} enviou ${giftData.name} ×${giftData.qty}`);
+          } catch(err) {}
+        });
+
+        evtSource.addEventListener('toggle_ai', e => {
+          try {
+            const data = JSON.parse(e.data);
+            setAutoPlayMode(data.enabled);
+          } catch(err) {}
+        });
+
+        evtSource.addEventListener('live_status', e => {
+          try {
+            const st = JSON.parse(e.data);
+            const badge = document.getElementById('b7-status-badge');
+            if (badge) {
+              if (st.connected) {
+                badge.className = 'b7-badge b7-badge-online';
+                badge.textContent = `🟢 AO VIVO (${st.username})`;
+              } else {
+                badge.className = 'b7-badge b7-badge-offline';
+                badge.textContent = st.status || 'DESCONECTADO';
+              }
+            }
+          } catch(err) {}
+        });
+
+        evtSource.addEventListener('comment', e => {
+          try {
+            const c = JSON.parse(e.data);
+            logB7Event(`💬 ${c.user}: ${c.comment}`);
+          } catch(err) {}
+        });
+
+        evtSource.onerror = () => {
+          // Fallback silencioso
+        };
+      } catch (e) {}
+
+      // Configura os ouvintes do Painel B7
+      setupB7PanelListeners();
+      updateB7AdminUI();
+    }
+
+    function logB7Event(msg) {
+      const feed = document.getElementById('b7-live-event-feed');
+      if (!feed) return;
+      const item = document.createElement('div');
+      item.className = 'text-[11px] py-1 border-b border-white/5 text-slate-300 flex items-center justify-between';
+      item.innerHTML = `<span>${msg}</span><span class="text-[9px] text-slate-500 font-mono">${new Date().toLocaleTimeString()}</span>`;
+      feed.insertBefore(item, feed.firstChild);
+      while (feed.children.length > 25) {
+        feed.removeChild(feed.lastChild);
+      }
+    }
+
+    function setupB7PanelListeners() {
+      // Botão Principal do Modo IA
+      const mainIaBtn = document.getElementById('b7-main-ia-btn');
+      if (mainIaBtn) {
+        mainIaBtn.addEventListener('click', () => {
+          B7AudioEngine.init();
+          const newState = !state.autoPlay;
+          setAutoPlayMode(newState);
+          fetch('/api/toggle_ai', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ enabled: newState })
+          }).catch(() => {});
+        });
+      }
+
+      // Botão Testar Som Maçã
+      const testAppleBtn = document.getElementById('b7-test-apple-sound');
+      if (testAppleBtn) {
+        testAppleBtn.addEventListener('click', () => {
+          B7AudioEngine.init();
+          B7AudioEngine.playAppleCrunch();
+        });
+      }
+
+      // Botão Testar Som Bomba
+      const testBombBtn = document.getElementById('b7-test-bomb-sound');
+      if (testBombBtn) {
+        testBombBtn.addEventListener('click', () => {
+          B7AudioEngine.init();
+          B7AudioEngine.playBombExplosion();
+        });
+      }
+
+      // Slider de Volume
+      const volSlider = document.getElementById('b7-volume-slider');
+      if (volSlider) {
+        volSlider.addEventListener('input', e => {
+          const val = parseFloat(e.target.value) / 100;
+          B7AudioEngine.setVolume(val);
+        });
+      }
+
+      // Checkbox Som Maçã
+      const chkApple = document.getElementById('b7-chk-apple');
+      if (chkApple) {
+        chkApple.addEventListener('change', e => {
+          B7AudioEngine.soundAppleEnabled = e.target.checked;
+        });
+      }
+
+      // Checkbox Som Bomba
+      const chkBomb = document.getElementById('b7-chk-bomb');
+      if (chkBomb) {
+        chkBomb.addEventListener('change', e => {
+          B7AudioEngine.soundBombEnabled = e.target.checked;
+        });
+      }
+
+      // Botão Copiar Link OBS
+      const copyObsBtn = document.getElementById('b7-copy-obs-btn');
+      if (copyObsBtn) {
+        copyObsBtn.addEventListener('click', () => {
+          const obsUrl = `${window.location.origin}/game`;
+          navigator.clipboard.writeText(obsUrl).then(() => {
+            const originalText = copyObsBtn.innerHTML;
+            copyObsBtn.innerHTML = '<span>✓ Link do OBS Copiado!</span>';
+            setTimeout(() => { copyObsBtn.innerHTML = originalText; }, 2200);
+          });
+        });
+      }
+
+      // Conectar TikTok Live com EulerStream API
+      const connectBtn = document.getElementById('b7-btn-connect-live');
+      if (connectBtn) {
+        connectBtn.addEventListener('click', () => {
+          const user = document.getElementById('b7-tiktok-user').value.trim();
+          const key = document.getElementById('b7-euler-key').value.trim();
+          if (!user) {
+            alert('Por favor, informe o seu @ de usuário do TikTok.');
+            return;
+          }
+          connectBtn.disabled = true;
+          connectBtn.innerHTML = '<span>⏳ Conectando...</span>';
+
+          fetch('/api/connect', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username: user, euler_api_key: key })
+          })
+          .then(r => r.json())
+          .then(res => {
+            connectBtn.disabled = false;
+            connectBtn.innerHTML = '<span>⚡ Conectar Live</span>';
+            logB7Event(`📡 Solicitação de conexão enviada para @${user}`);
+          })
+          .catch(() => {
+            connectBtn.disabled = false;
+            connectBtn.innerHTML = '<span>⚡ Conectar Live</span>';
+          });
+        });
+      }
+
+      // Desconectar Live
+      const disconnectBtn = document.getElementById('b7-btn-disconnect-live');
+      if (disconnectBtn) {
+        disconnectBtn.addEventListener('click', () => {
+          fetch('/api/disconnect', { method: 'POST' }).then(() => {
+            logB7Event('🛑 Live desconectada.');
+          });
+        });
+      }
+
+      // Abrir modal de edição de presentes pelo painel
+      const editGiftsBtn = document.getElementById('b7-btn-edit-gifts');
+      if (editGiftsBtn) {
+        editGiftsBtn.addEventListener('click', () => {
+          renderConfigModal();
+          document.getElementById('config-modal').classList.remove('hidden');
+        });
+      }
+
+      // Salvar presentes sincronizando com backend
+      const origSaveGifts = saveGifts;
+      saveGifts = function() {
+        origSaveGifts();
+        renderB7QuickGiftButtons();
+        fetch('/api/config', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ gifts: gifts })
+        }).catch(() => {});
+      };
+    }
+
+    // Inicializa sincronização
+    setTimeout(initB7ServerSync, 300);
+
+  </script>
+</body>
+</html>
